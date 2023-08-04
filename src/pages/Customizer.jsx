@@ -44,6 +44,7 @@ const Customizer = () => {
   
   const handleTabClick = (tabName) => {
     setSelectedOption(tabName);
+    setActiveEditorTab(tabName);
   };
   const snap = useSnapshot(state);
 
