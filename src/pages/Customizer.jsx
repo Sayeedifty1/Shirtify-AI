@@ -60,7 +60,7 @@ const Customizer = () => {
 
     try {
       setGeneratingImg(true);
-      const res = await fetch("http://localhost:8080/api/v1/dalle", {
+      const res = await fetch("https://shopify-server-smoky.vercel.app/api/v1/dalle", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
