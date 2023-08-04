@@ -12,11 +12,14 @@
   "dependencies": {
     "@react-three/drei": "^9.80.0",
     "@react-three/fiber": "^8.13.6",
+    "@stripe/react-stripe-js": "^2.1.1",
+    "@stripe/stripe-js": "^1.54.2",
     "framer-motion": "^10.14.0",
     "maath": "^0.7.0",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
     "react-dom": "^18.2.0",
+    "react-modal": "^3.16.1",
     "three": "^0.155.0",
     "valtio": "^1.11.1"
   },

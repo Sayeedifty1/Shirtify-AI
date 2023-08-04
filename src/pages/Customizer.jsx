@@ -3,36 +3,62 @@ import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSnapshot } from "valtio";
 import state from "../store";
-import config from "../config/config";
 import { download } from "../assets";
 import { downloadCanvasToImage, reader } from "../config/helpers";
 import { EditorTabs, FilterTabs, DecalTypes } from "../config/constants";
 import { fadeAnimation, slideAnimation } from "../config/motion";
 import { AIPicker, ColorPicker, CustomButton, FilePicker, Tab } from "../components";
-
-
+import PaymentForm from "./PaymentForm";
 
 
 
 const Customizer = () => {
 
   const handleDownload = () => {
-    downloadCanvasToImage();
+    if(paymentAmount>0) {
+      setShowPaymentModal(true);
+    }else{
+      downloadCanvasToImage();
+    }
   };
 
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState(0);
+  
+  useEffect(() => {
+    switch (selectedOption) {
+      case "colorpicker":
+        setPaymentAmount(68); // 0.68$
+        break;
+      case "filepicker":
+        setPaymentAmount(270); // 2.70$
+        break;
+      case "aipicker":
+        setPaymentAmount(500); // 5.00$
+        break;
+      default:
+        setPaymentAmount(0); // No payment needed if nothing selected
+    }
+  }, [selectedOption]);
+  
+  const handleTabClick = (tabName) => {
+    setSelectedOption(tabName);
+  };
   const snap = useSnapshot(state);
 
-  const [file, setFile] = useState("");
-  const [prompt, setPrompt] = useState("");
+  const [file, setFile] = useState('');
+
+  const [prompt, setPrompt] = useState('');
   const [generatingImg, setGeneratingImg] = useState(false);
 
   const [activeEditorTab, setActiveEditorTab] = useState("");
   const [activeFilterTab, setActiveFilterTab] = useState({
     logoShirt: true,
     stylishShirt: false,
-  });
+  })
 
-  // show tab content depending on the active tab
+  // show tab content depending on the activeTab
   const generateTabContent = () => {
     switch (activeEditorTab) {
       case "colorpicker":
@@ -54,32 +80,34 @@ const Customizer = () => {
         return null;
     }
   }
-
+  console.log(paymentAmount)
   const handleSubmit = async (type) => {
     if (!prompt) return alert("Please enter a prompt");
 
     try {
       setGeneratingImg(true);
-      const res = await fetch("https://shopify-server-smoky.vercel.app/api/v1/dalle", {
-        method: "POST",
+
+      const response = await fetch('https://shopify-server-smoky.vercel.app/api/v1/dalle', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json"
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           prompt,
         })
       })
-      const data = await res.json();
-      console.log(data)
-      handleDecals(type, `data:image/png;base64,${data.photo}`);
+
+      const data = await response.json();
+
+      handleDecals(type, `data:image/png;base64,${data.photo}`)
     } catch (error) {
       alert(error)
     } finally {
       setGeneratingImg(false);
       setActiveEditorTab("");
     }
-
   }
+
   const handleDecals = (type, result) => {
     const decalType = DecalTypes[type];
 
@@ -101,8 +129,11 @@ const Customizer = () => {
       default:
         state.isLogoTexture = true;
         state.isFullTexture = false;
+        break;
     }
-    // after setting state , activeFilterTab will be updated
+
+    // after setting the state, activeFilterTab is updated
+
     setActiveFilterTab((prevState) => {
       return {
         ...prevState,
@@ -114,7 +145,7 @@ const Customizer = () => {
   const readFile = (type) => {
     reader(file)
       .then((result) => {
-        handleDecals(result, type);
+        handleDecals(type, result);
         setActiveEditorTab("");
       })
   }
@@ -133,7 +164,7 @@ const Customizer = () => {
                   <Tab
                     key={tab.name}
                     tab={tab}
-                    handleClick={() => setActiveEditorTab(tab.name)
+                    handleClick={() => handleTabClick(tab.name)
                     } />
 
 
@@ -172,9 +203,16 @@ const Customizer = () => {
         </>
 
       )}
+      {showPaymentModal && (
+        <PaymentForm
+          key={1}
+          paymentAmount={paymentAmount}
+          onCancel={() => setShowPaymentModal(false)}
+        />
+      )}
 
     </AnimatePresence>
   )
 }
 
-export default Customizer
+export default Customizer;
