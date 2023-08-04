@@ -9,23 +9,73 @@ import { EditorTabs, FilterTabs, DecalTypes } from "../config/constants";
 import { fadeAnimation, slideAnimation } from "../config/motion";
 import { AIPicker, ColorPicker, CustomButton, FilePicker, Tab } from "../components";
 import PaymentForm from "./PaymentForm";
+import { useStripe } from "@stripe/react-stripe-js";
 
 
 
 const Customizer = () => {
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState(0);
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false); // Define the state setter
+  const [isPaymentComplete, setIsPaymentComplete] = useState(false); // Define the state setter 
+  const stripe = useStripe();
+
+  const handlePayment = async (paymentMethodId, amount, onComplete) => {
+    try {
+      setIsPaymentProcessing(true);
+
+      const response = await fetch("http://localhost:8080/api/create-payment-intent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount,
+          currency: "usd",
+        }),
+      });
+
+      const data = await response.json();
+      const clientSecret = data.clientSecret;
+
+      // Confirm the payment with Stripe
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: paymentMethodId,
+      });
+
+      setShowPaymentModal(false); // Close the modal after payment processing
+
+      if (result.error) {
+        console.error(result.error.message);
+        alert("Payment failed. Please try again.");
+        setIsPaymentProcessing(false); // Reset the processing state in case of error
+      } else if (result.paymentIntent.status === "succeeded") {
+        setIsPaymentProcessing(false);
+        setIsPaymentComplete(true);
+        downloadCanvasToImage();
+        onComplete(); // Call the callback function to handle the payment completion
+      }
+    } catch (error) {
+      console.error(error.message);
+      setIsPaymentProcessing(false);
+      alert("Something went wrong. Please try again.");
+    }
+  };
+
+
+
 
   const handleDownload = () => {
-    if(paymentAmount>0) {
+    if (paymentAmount > 0) {
       setShowPaymentModal(true);
-    }else{
+    } else {
       downloadCanvasToImage();
     }
   };
 
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentAmount, setPaymentAmount] = useState(0);
-  
+
+
   useEffect(() => {
     switch (selectedOption) {
       case "colorpicker":
@@ -41,7 +91,7 @@ const Customizer = () => {
         setPaymentAmount(0); // No payment needed if nothing selected
     }
   }, [selectedOption]);
-  
+
   const handleTabClick = (tabName) => {
     setSelectedOption(tabName);
     setActiveEditorTab(tabName);
@@ -110,6 +160,7 @@ const Customizer = () => {
   }
 
   const handleDecals = (type, result) => {
+    console.log("Result from AI:", result); // Add this log
     const decalType = DecalTypes[type];
 
     state[decalType.stateProperty] = result;
@@ -208,6 +259,8 @@ const Customizer = () => {
         <PaymentForm
           key={1}
           paymentAmount={paymentAmount}
+          onSubmit={handlePayment}
+          onComplete={() => setShowPaymentModal(false)}
           onCancel={() => setShowPaymentModal(false)}
         />
       )}

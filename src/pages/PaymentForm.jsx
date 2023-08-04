@@ -6,7 +6,7 @@ import "./payment.css";
 import React, { useState } from "react";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 
-const PaymentForm = ({ paymentAmount, onSubmit, onCancel }) => {
+const PaymentForm = ({ paymentAmount, onSubmit, onCancel, onComplete }) => {
     const stripe = useStripe();
     const elements = useElements();
 
@@ -39,12 +39,13 @@ const PaymentForm = ({ paymentAmount, onSubmit, onCancel }) => {
 
             // Submit the payment to your server
             const { paymentMethod } = paymentMethodResult;
-            onSubmit(paymentMethod.id, paymentAmount);
+            onSubmit(paymentMethod.id, paymentAmount, onComplete); // Call the parent component's handlePayment function
         } catch (error) {
             console.error(error);
             setIsProcessing(false);
         }
     };
+
 
     return (
         <div className="modal active">
