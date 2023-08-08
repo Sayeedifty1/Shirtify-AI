@@ -10,6 +10,7 @@ import { fadeAnimation, slideAnimation } from "../config/motion";
 import { AIPicker, ColorPicker, CustomButton, FilePicker, Tab } from "../components";
 import PaymentForm from "./PaymentForm";
 import { useStripe } from "@stripe/react-stripe-js";
+import { dalleApiCall } from "../config/openai";
 
 
 
@@ -132,32 +133,64 @@ const Customizer = () => {
     }
   }
   console.log(paymentAmount)
+
+
+
+  // const handleSubmit = async (type) => {
+  //   if (!prompt) return alert("Please enter a prompt");
+
+  //   try {
+  //     setGeneratingImg(true);
+
+  //     const response = await fetch('https://shopify-server-smoky.vercel.app/api/v1/dalle', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({
+  //         prompt,
+  //       })
+  //     })
+
+  //     const data = await response.json();
+
+  //     handleDecals(type, `data:image/png;base64,${data.photo}`)
+  //   } catch (error) {
+  //     alert(error)
+  //   } finally {
+  //     setGeneratingImg(false);
+  //     setActiveEditorTab("");
+  //   }
+  // }
   const handleSubmit = async (type) => {
     if (!prompt) return alert("Please enter a prompt");
 
     try {
       setGeneratingImg(true);
 
-      const response = await fetch('https://shopify-server-smoky.vercel.app/api/v1/dalle', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          prompt,
-        })
-      })
+      const messages = []; // Initialize an empty array to hold messages if needed
 
-      const data = await response.json();
+      const apiResponse = await dalleApiCall(prompt, messages);
 
-      handleDecals(type, `data:image/png;base64,${data.photo}`)
+      if (apiResponse.success) {
+        const imageUrl = apiResponse.data[0]?.content; // Assuming you are pushing the image URL as a message
+        if (imageUrl) {
+          handleDecals(type, imageUrl);
+        } else {
+          alert("No image URL found in the API response");
+        }
+      } else {
+        alert("API call failed: " + apiResponse.msg);
+      }
     } catch (error) {
-      alert(error)
+      alert(error);
     } finally {
       setGeneratingImg(false);
       setActiveEditorTab("");
     }
   }
+
+
 
   const handleDecals = (type, result) => {
     console.log("Result from AI:", result); // Add this log
