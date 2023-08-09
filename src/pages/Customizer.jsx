@@ -11,6 +11,7 @@ import { AIPicker, ColorPicker, CustomButton, FilePicker, Tab } from "../compone
 import PaymentForm from "./PaymentForm";
 import { useStripe } from "@stripe/react-stripe-js";
 import { dalleApiCall } from "../config/openai";
+import { hostImage } from "../config/Host";
 
 
 
@@ -172,8 +173,17 @@ const Customizer = () => {
 
       if (apiResponse.success) {
         const imageUrl = apiResponse.imageContent; // Updated to use 'imageContent'
+
         if (imageUrl) {
-          handleDecals(type, imageUrl);
+          // Host the image URL using hostImage function
+          const hostedImageUrl = await hostImage(imageUrl);
+
+          if (hostedImageUrl) {
+            // Pass the hosted URL to handleDecals function
+            handleDecals(type, hostedImageUrl);
+          } else {
+            alert("Image hosting failed");
+          }
         } else {
           alert("No image URL found in the API response");
         }
