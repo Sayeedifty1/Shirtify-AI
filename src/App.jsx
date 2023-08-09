@@ -7,7 +7,7 @@ import Canvas from "./canvas";
 
 // Load your Stripe publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-console.log(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
 function App() {
   return (
     <main className="app transition-all ease-in">

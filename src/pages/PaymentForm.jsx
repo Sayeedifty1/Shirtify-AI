@@ -48,12 +48,27 @@ const PaymentForm = ({ paymentAmount, onSubmit, onCancel, onComplete }) => {
 
 
     return (
-        <div className="modal active">
+        <div className="modal active ">
             <div className="modal-content">
                 <h2 className="text-2xl mb-8">Total Amount: ${paymentAmount}</h2>
                 <form onSubmit={handlePaymentSubmit}>
                     <div className="form-row mb-10">
-                        <CardElement />
+                    <CardElement
+                    options={{
+                        style: {
+                            base: {
+                                fontSize: '16px',
+                                color: '#424770',
+                                '::placeholder': {
+                                    color: '#aab7c4',
+                                },
+                            },
+                            invalid: {
+                                color: '#9e2146',
+                            },
+                        },
+                    }}
+                />
                     </div>
                     <div className="flex justify-evenly">
                         <button type="submit" className="bg-green-600 p-2 rounded-lg text-white" disabled={isProcessing}>

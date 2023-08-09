@@ -168,12 +168,10 @@ const Customizer = () => {
     try {
       setGeneratingImg(true);
 
-      const messages = []; // Initialize an empty array to hold messages if needed
-
-      const apiResponse = await dalleApiCall(prompt, messages);
+      const apiResponse = await dalleApiCall(prompt);
 
       if (apiResponse.success) {
-        const imageUrl = apiResponse.data[0]?.content; // Assuming you are pushing the image URL as a message
+        const imageUrl = apiResponse.imageContent; // Updated to use 'imageContent'
         if (imageUrl) {
           handleDecals(type, imageUrl);
         } else {
@@ -188,20 +186,21 @@ const Customizer = () => {
       setGeneratingImg(false);
       setActiveEditorTab("");
     }
-  }
-
-
+  };
 
   const handleDecals = (type, result) => {
-    console.log("Result from AI:", result); // Add this log
+    console.log("Result from AI:", result);
+
     const decalType = DecalTypes[type];
 
+    // Assuming 'state' is your state object that holds the properties
     state[decalType.stateProperty] = result;
 
+    // Assuming 'activeFilterTab' is another state object
     if (!activeFilterTab[decalType.filterTab]) {
-      handleActiveFilterTab(decalType.filterTab)
+      handleActiveFilterTab(decalType.filterTab);
     }
-  }
+  };
 
   const handleActiveFilterTab = (tabName) => {
     switch (tabName) {
