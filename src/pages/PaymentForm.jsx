@@ -48,8 +48,8 @@ const PaymentForm = ({ paymentAmount, onSubmit, onCancel, onComplete }) => {
 
 
     return (
-        <div className="modal active ">
-            <div className="modal-content">
+        <div className="modal active text-white">
+            <div className="modal-content bg-black opacity-80">
                 <h2 className="text-2xl mb-8">Total Amount: ${paymentAmount}</h2>
                 <form onSubmit={handlePaymentSubmit}>
                     <div className="form-row mb-10">
