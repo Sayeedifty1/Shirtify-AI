@@ -81,13 +81,13 @@ const Customizer = () => {
   useEffect(() => {
     switch (selectedOption) {
       case "colorpicker":
-        setPaymentAmount(68); // 0.68$
+        setPaymentAmount(6); // 0.68$
         break;
       case "filepicker":
-        setPaymentAmount(270); // 2.70$
+        setPaymentAmount(12); // 2.70$
         break;
       case "aipicker":
-        setPaymentAmount(500); // 5.00$
+        setPaymentAmount(20); // 5.00$
         break;
       default:
         setPaymentAmount(0); // No payment needed if nothing selected
