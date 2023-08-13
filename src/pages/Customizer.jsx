@@ -27,7 +27,7 @@ const Customizer = () => {
     try {
       setIsPaymentProcessing(true);
 
-      const response = await fetch("http://localhost:8080/api/create-payment-intent", {
+      const response = await fetch("https://shopify-server-sayeedifty1.vercel.app/api/create-payment-intent", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
